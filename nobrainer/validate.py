@@ -157,7 +157,7 @@ def validate_from_filepaths(filepaths,
         #     raise Exception(str(mean_path) + " or " + str(variance_path) +
         #                     " or " + str(entropy_path) + " already exists.")
 
-        nib.save(outputs[0], mean_path.as_posix())  # fix
+        nib.save(outputs[0], mean_path.as_posix())
         if not return_array_from_images:
             include_variance = ((n_samples > 1) and (return_variance))
             include_entropy = ((n_samples > 1) and (return_entropy))

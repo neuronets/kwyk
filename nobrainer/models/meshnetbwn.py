@@ -21,6 +21,7 @@ from nobrainer.models.util import check_optimizer_for_training
 from nobrainer.models.util import check_required_params
 from nobrainer.models.util import set_default_params
 from nobrainer.models import vwn_conv
+from nobrainer.models.bayesian_dropout import bernoulli_dropout
 
 def _layer(inputs,
            mode,
@@ -28,7 +29,9 @@ def _layer(inputs,
            filters,
            kernel_size,
            dilation_rate,
-           is_mc):
+           keep_prob,
+           is_mc_v,
+          is_mc_b):
     """Layer building block of MeshNet.
 
     Performs 3D convolution, activation, batch normalization, and dropout on
@@ -53,7 +56,8 @@ def _layer(inputs,
         conv = vwn_conv.conv3d(
             inputs, filters=filters, kernel_size=kernel_size,
             padding='SAME', dilation_rate=dilation_rate, activation=None,
-            is_mc=is_mc)
+            is_mc=is_mc_v)
+        conv = bernoulli_dropout(conv,keep_prob,is_mc_b,False)
         return tf.nn.relu(conv)
 
 
@@ -94,7 +98,7 @@ def model_fn(features,
         volume = features['volume']
     
     required_keys = {'n_classes'}
-    default_params = {'optimizer': None, 'n_filters': 96}
+    default_params = {'optimizer': None, 'n_filters': 96, 'keep_prob': 0.5}
     check_required_params(params=params, required_keys=required_keys)
     set_default_params(params=params, defaults=default_params)
     check_optimizer_for_training(optimizer=params['optimizer'], mode=mode)
@@ -112,19 +116,21 @@ def model_fn(features,
         (8, 8, 8),
         (1, 1, 1))
 
-    is_mc = tf.constant(False,dtype=tf.bool)
+    is_mc_v = tf.constant(False,dtype=tf.bool)
+    is_mc_b = tf.constant(True,dtype=tf.bool)
     
     outputs = volume
     
     for ii, dilation_rate in enumerate(dilation_rates):
         outputs = _layer(
             outputs, mode=mode, layer_num=ii + 1, filters=params['n_filters'],
-            kernel_size=3, dilation_rate=dilation_rate, is_mc=is_mc)
+            kernel_size=3, dilation_rate=dilation_rate,keep_prob=params['keep_prob'], is_mc_v=is_mc_v, is_mc_b=is_mc_b)
 
     with tf.variable_scope('logits'):
         logits = vwn_conv.conv3d(
             inputs=outputs, filters=params['n_classes'], kernel_size=(1, 1, 1),
-            padding='SAME', activation=None, is_mc=is_mc)
+            padding='SAME', activation=None, is_mc=is_mc_v)
+        
     predicted_classes = tf.argmax(logits, axis=-1)
 
     if mode == tf.estimator.ModeKeys.PREDICT:
@@ -203,7 +209,7 @@ def model_fn(features,
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
 
-class MeshNetWN(tf.estimator.Estimator):
+class MeshNetBWN(tf.estimator.Estimator):
     """MeshNet model.
 
     Example:
@@ -252,6 +258,7 @@ class MeshNetWN(tf.estimator.Estimator):
                  n_classes,
                  optimizer=None,
                  n_filters=96,
+                 keep_prob=0.5,
                  learning_rate=None,
                  model_dir=None,
                  config=None,
@@ -277,6 +284,6 @@ class MeshNetWN(tf.estimator.Estimator):
             params['optimizer'] = TowerOptimizer(params['optimizer'])
             _model_fn = replicate_model_fn(_model_fn)
 
-        super(MeshNetWN, self).__init__(
+        super(MeshNetBWN, self).__init__(
             model_fn=_model_fn, model_dir=model_dir, params=params,
             config=config, warm_start_from=warm_start_from)

@@ -10,6 +10,7 @@ def get_estimator(name):
     """Return `tf.estimators.Estimator` subclass of model `name`. If `name`
     is an Estimator object, return the object.
     """
+    
     try:
         if issubclass(name, tf.estimator.Estimator):
             return name
@@ -21,6 +22,8 @@ def get_estimator(name):
         'meshnet': nobrainer.models.meshnet.MeshNet,
         'meshnetwn': nobrainer.models.meshnetwn.MeshNetWN,
         'meshnetvwn': nobrainer.models.meshnetvwn.MeshNetVWN,
+        'meshnetbwn': nobrainer.models.meshnetbwn.MeshNetBWN,
+        'meshnetbvwn': nobrainer.models.meshnetbvwn.MeshNetBVWN,
         'quicknat': nobrainer.models.quicknat.QuickNAT,
     }
 

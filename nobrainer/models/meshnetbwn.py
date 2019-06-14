@@ -183,22 +183,6 @@ def model_fn(features,
     
     loss = nll_loss + l2_loss
 
-    # Add evaluation metrics for class 1.
-    labels = tf.cast(labels, predicted_classes.dtype)
-    labels_onehot = tf.one_hot(labels, params['n_classes'])
-    predictions_onehot = tf.one_hot(predicted_classes, params['n_classes'])
-    eval_metric_ops = {
-        'accuracy': tf.metrics.accuracy(labels, predicted_classes),
-        'dice': streaming_dice(
-            labels_onehot[..., 1], predictions_onehot[..., 1]),
-        'hamming': streaming_hamming(
-            labels_onehot[..., 1], predictions_onehot[..., 1]),
-    }
-
-    if mode == tf.estimator.ModeKeys.EVAL:
-        return tf.estimator.EstimatorSpec(
-            mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
-
     assert mode == tf.estimator.ModeKeys.TRAIN
 
     global_step = tf.train.get_global_step()

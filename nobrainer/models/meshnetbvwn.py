@@ -14,7 +14,7 @@ from tensorflow.python.estimator.canned.optimizers import (
     get_optimizer_instance
 )
 
-from nobrainer.models.util import check_required_params, set_default_params
+from nobrainer.models.util import check_required_params, set_default_params, str2bool
 from nobrainer.models import vwn_conv
 from nobrainer.models.bayesian_dropout import concrete_dropout
 
@@ -23,7 +23,9 @@ def _layer(inputs,
            layer_num,
            filters,
            kernel_size,
-           dilation_rate,is_mc):
+           dilation_rate,
+           is_mc,
+          use_expectation):
     """Layer building block of MeshNet.
 
     Performs 3D convolution, activation, batch normalization, and dropout on
@@ -49,7 +51,7 @@ def _layer(inputs,
             inputs, filters=filters, kernel_size=kernel_size,
             padding='SAME', dilation_rate=dilation_rate, activation=None,is_mc=is_mc
         )
-        conv = concrete_dropout(conv,is_mc,filters)
+        conv = concrete_dropout(conv,is_mc,filters,use_expectation=use_expectation)
         return tf.nn.relu(conv)
 
 
@@ -86,8 +88,8 @@ def model_fn(features,
     if isinstance(volume, dict):
         volume = features['volume']
     
-    required_keys = {'n_classes', 'optimizer'}
-    default_params = {'n_filters': 96}
+    required_keys = {'n_classes'}
+    default_params = {'optimizer': None,'n_filters': 96}
     check_required_params(params=params, required_keys=required_keys)
     set_default_params(params=params, defaults=default_params)
 
@@ -105,14 +107,14 @@ def model_fn(features,
         (1, 1, 1),
     )
     
-    is_mc = tf.constant(True,dtype=tf.bool)
+    is_mc = tf.constant(str2bool(params['is_mc']),dtype=tf.bool)
     
     outputs = volume
     
     for ii, dilation_rate in enumerate(dilation_rates):
         outputs = _layer(
             outputs, mode=mode, layer_num=ii + 1, filters=params['n_filters'],
-            kernel_size=3, dilation_rate=dilation_rate, is_mc=is_mc
+            kernel_size=3, dilation_rate=dilation_rate, is_mc=is_mc, use_expectation=str2bool(params['is_mc'])
         )
 
     with tf.variable_scope('logits'):
@@ -156,7 +158,7 @@ def model_fn(features,
         for v in tf.get_collection('ms'):
             i += 1
             if params['prior_path'] == None:
-                tf.add_to_collection('sigmas_prior',tf.Variable(tf.constant(0.01, dtype = v.dtype, shape = v.shape),trainable = False))
+                tf.add_to_collection('sigmas_prior',tf.Variable(tf.constant(0.1, dtype = v.dtype, shape = v.shape),trainable = False))
             else:
                 tf.add_to_collection('sigmas_prior',tf.Variable(tf.convert_to_tensor(prior_np[1][i], dtype = tf.float32),trainable = False))
 
@@ -184,8 +186,14 @@ def model_fn(features,
     n_examples = tf.constant(params['n_examples'],dtype=ms[0].dtype)
     tf.summary.scalar('n_examples', n_examples)
     
+    
     if not params['only_kld']:
-        loss = nll_loss + (l2_loss + sigma_squared_loss - log_sigma_loss + b_kld_loss) / n_examples
+        
+        if str2bool(params['is_mc']):
+            loss = nll_loss + (l2_loss + sigma_squared_loss - log_sigma_loss + b_kld_loss) / n_examples
+        else:
+            loss = nll_loss + (l2_loss) / n_examples
+    
     else:
         mse_m_loss = tf.add_n([tf.reduce_sum(tf.square(ms[i] - ms_prior[i])) for i in range(len(ms))], name = 'mse_m_loss')
         tf.summary.scalar('mse_m_loss', l2_loss)
@@ -265,7 +273,8 @@ class MeshNetBVWN(tf.estimator.Estimator):
                  warm_start_from=None,
                  prior_path=None,
                  multi_gpu=False,
-                 only_kld=False):
+                 only_kld=False,
+                 is_mc='False'):
         print('Learning Rate: ' + str(learning_rate))
         params = {
             'n_classes': n_classes,
@@ -276,7 +285,8 @@ class MeshNetBVWN(tf.estimator.Estimator):
             'n_examples': n_examples,
             'prior_path': prior_path,
             'n_prior_samples': n_prior_samples,
-            'only_kld': only_kld
+            'only_kld': only_kld,
+            'is_mc': is_mc
         }
 
         _model_fn = model_fn

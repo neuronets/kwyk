@@ -10,6 +10,7 @@ from nobrainer.io import read_volume
 from nobrainer.metrics import dice_numpy
 from nobrainer.predict import predict as _predict
 import nobrainer
+import os
 DT_X = "float32"
 
 
@@ -144,9 +145,14 @@ def validate_from_filepaths(filepaths,
             normalizer=normalizer,
             batch_size=batch_size,
             dtype=dtype)
-
+        
         outpath = Path(filepath[0])
+        
+        if not os.path.isdir(output_path):
+            os.makedirs(output_path)
+        
         output_path = Path(output_path)
+
         suffixes = ''.join(s for s in outpath.suffixes)
         mean_path = output_path / (outpath.stem + '_mean' + suffixes)
         variance_path = output_path / \
@@ -160,7 +166,7 @@ def validate_from_filepaths(filepaths,
         nib.save(outputs[0], mean_path.as_posix())
         if not return_array_from_images:
             include_variance = ((n_samples > 1) and (return_variance))
-            include_entropy = ((n_samples > 1) and (return_entropy))
+            include_entropy = return_entropy
             if include_variance and return_entropy:
                 nib.save(outputs[1], str(variance_path))
                 nib.save(outputs[2], str(entropy_path))
@@ -168,6 +174,7 @@ def validate_from_filepaths(filepaths,
                 nib.save(outputs[1], str(variance_path))
             elif include_entropy:
                 nib.save(outputs[1], str(entropy_path))
+                print(str(entropy_path))
 
         print(filepath[0])
         print('Dice: ' + str(np.mean(dice)))

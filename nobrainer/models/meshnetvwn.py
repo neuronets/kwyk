@@ -84,8 +84,8 @@ def model_fn(features,
     if isinstance(volume, dict):
         volume = features['volume']
     
-    required_keys = {'n_classes', 'optimizer'}
-    default_params = {'n_filters': 96}
+    required_keys = {'n_classes'}
+    default_params = {'optimizer': None, 'n_filters': 96}
     check_required_params(params=params, required_keys=required_keys)
     set_default_params(params=params, defaults=default_params)
 
@@ -154,7 +154,7 @@ def model_fn(features,
         for v in tf.get_collection('ms'):
             i += 1
             if params['prior_path'] == None:
-                tf.add_to_collection('sigmas_prior',tf.Variable(tf.constant(0.01, dtype = v.dtype, shape = v.shape),trainable = False))
+                tf.add_to_collection('sigmas_prior',tf.Variable(tf.constant(0.1, dtype = v.dtype, shape = v.shape),trainable = False))
             else:
                 tf.add_to_collection('sigmas_prior',tf.Variable(tf.convert_to_tensor(prior_np[1][i], dtype = tf.float32),trainable = False))
 

@@ -5,6 +5,13 @@ import tensorflow as tf
 
 import nobrainer
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def get_estimator(name):
     """Return `tf.estimators.Estimator` subclass of model `name`. If `name`
@@ -23,8 +30,10 @@ def get_estimator(name):
         'meshnetwn': nobrainer.models.meshnetwn.MeshNetWN,
         'meshnetvwn': nobrainer.models.meshnetvwn.MeshNetVWN,
         'meshnetbwn': nobrainer.models.meshnetbwn.MeshNetBWN,
+        'meshnetcwn': nobrainer.models.meshnetcwn.MeshNetCWN,
         'meshnetbvwn': nobrainer.models.meshnetbvwn.MeshNetBVWN,
         'quicknat': nobrainer.models.quicknat.QuickNAT,
+        'unet3d': nobrainer.models.unet3d.UNet3D,
     }
 
     try:

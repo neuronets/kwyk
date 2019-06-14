@@ -37,7 +37,7 @@ def bernoulli_dropout(incoming, keep_prob, mc, scale_during_training = True, nam
         inference = tf.cond(mc, apply_bernoulli_dropout, lambda: expectation)
     return inference
 
-def concrete_dropout(incoming, mc, n_filters = None, temperature=0.02, epsilon=1e-7, name='concrete_dropout'):
+def concrete_dropout(incoming, mc, n_filters = None, temperature=0.02, epsilon=1e-7, use_expectation=True, name='concrete_dropout'):
     """ Concrete Dropout.
     Outputs the input element multiplied by a random variable sampled from a concrete distribution
     Arguments:
@@ -76,6 +76,8 @@ def concrete_dropout(incoming, mc, n_filters = None, temperature=0.02, epsilon=1
             expectation =  tf.multiply(p,inference)
         else:
             expectation =  tf.scalar_mul(p,inference)
+        if not use_expectation:
+            expectation = inference
         inference = tf.cond(mc, apply_concrete_dropout, lambda: expectation)
     return inference
 

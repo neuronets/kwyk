@@ -35,7 +35,7 @@ def create_parser():
         '-n', '--n-classes', required=True, type=int,
         help="Number of classes to classify")
     m.add_argument(
-        '-m', '--model', required=True, choices={'highres3dnet', 'meshnet', 'meshnetwn', 'meshnetvwn', 'meshnetbwn','meshnetbvwn'},
+        '-m', '--model', required=True, choices={'highres3dnet', 'meshnet', 'meshnetwn', 'meshnetvwn', 'meshnetbwn', 'meshnetcwn', 'meshnetbvwn'},
         help="Model to use")
     m.add_argument(
         '--model-opts', type=json.loads, default={},
@@ -147,11 +147,11 @@ def create_parser():
         help="Number of sampling.")
     ppp.add_argument('--return-entropy', action='store_true',
         help = 'if you want to return entropy, add this flag.')
-    ppp.add_argument('--return-variance', action='store_true', 
+    ppp.add_argument('--return-variance', action='store_true',
         help ='if you want to return variance, add this flag.')
-    ppp.add_argument('--return-array-from-images', action = 'store_true', 
+    ppp.add_argument('--return-array-from-images', action = 'store_true',
         help = 'if you want to return array instead of image, add this flag.')
-    ppp.add_argument('--samplewise-minmax', action='store_true', 
+    ppp.add_argument('--samplewise-minmax', action='store_true',
         help = 'set normalizer to be minmax. NOTE, normalizer cannot be both minmax and zscore')
     ppp.add_argument('--samplewise-zscore', action='store_true',
         help = 'set normalizer to be zscore. NOTE, normalizer cannot be both minmax and zscore')
@@ -178,11 +178,11 @@ def create_parser():
         help="Number of sampling.")
     vpp.add_argument('--return-entropy', action='store_true',
         help = 'if you want to return entropy, add this flag.')
-    vpp.add_argument('--return-variance', action='store_true', 
+    vpp.add_argument('--return-variance', action='store_true',
         help ='if you want to return variance, add this flag.')
-    vpp.add_argument('--return-array-from-images', action = 'store_true', 
+    vpp.add_argument('--return-array-from-images', action = 'store_true',
         help = 'if you want to return array instead of image, add this flag.')
-    vpp.add_argument('--samplewise-minmax', action='store_true', 
+    vpp.add_argument('--samplewise-minmax', action='store_true',
         help = 'set normalizer to be minmax. NOTE, normalizer cannot be both minmax and zscore')
     vpp.add_argument('--samplewise-zscore', action='store_true',
         help = 'set normalizer to be zscore. NOTE, normalizer cannot be both minmax and zscore')
@@ -215,7 +215,6 @@ def create_parser():
     spp.add_argument(
         '-b', '--block-shape', nargs=3, required=True, type=int,
         help="Height, width, and depth of data that model takes as input.")
-
     spp.add_argument(
         '--model-opts', type=json.loads, default={},
         help='JSON string of model-specific options. For example'
@@ -235,7 +234,7 @@ def parse_args(args):
 
 
 def train(params):
-
+    
     model_config = tf.estimator.RunConfig(
         save_summary_steps=params['save_summary_steps'],
         save_checkpoints_steps=params['save_checkpoints_steps'],

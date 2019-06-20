@@ -5,7 +5,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
-
+import os
 import nibabel as nib
 import tensorflow as tf
 
@@ -324,15 +324,20 @@ def predict(params):
         batch_size=params['batch_size'])
 
     outpath = Path(params['output'])
-    suffixes = '.'.join(s for s in outpath.suffixes)
-    variance_path = outpath.parent / (outpath.stem + '_variance.' + suffixes)
-    entropy_path = outpath.parent / (outpath.stem + '_entropy.' + suffixes)
+    suffixes = ''.join(s for s in outpath.suffixes)
+    outstem = outpath.stem
+    while outstem != Path(outstem).stem:
+            outstem = Path(outstem).stem
+    if not os.path.isdir(outpath.parent):
+            os.makedirs(outpath.parent)
+    variance_path = outpath.parent / (outstem + '_variance.' + suffixes)
+    entropy_path = outpath.parent / (outstem + '_entropy.' + suffixes)
 
     nib.save(imgs[0], params['output']) # fix
     if not params['return_array_from_images']:
-        include_variance = ((params['n_samples'] > 1) and (return_variance))
-        include_entropy = ((params['n_samples'] > 1) and (return_entropy))
-        if include_variance and return_entropy:
+        include_variance = ((params['n_samples'] > 1) and params['return_variance'])
+        include_entropy = params['return_entropy']
+        if include_variance and include_entropy:
             nib.save(imgs[1], str(variance_path))
             nib.save(imgs[2], str(entropy_path))
         elif include_variance:

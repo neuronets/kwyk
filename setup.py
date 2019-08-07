@@ -36,8 +36,8 @@ setup(
     packages=find_packages(),
     install_requires=REQUIRED,
     extras_require={
-        'cpu': ["tensorflow>=1.10.0"],
-        'gpu': ["tensorflow-gpu>=1.10.0"],
+        'cpu': ["tensorflow==1.12.0"],
+        'gpu': ["tensorflow-gpu==1.12.0"],
     },
     classifiers=[
         'Programming Language :: Python',
@@ -47,7 +47,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "nobrainer=nobrainer.cli:main"
+            "nobrainer=nobrainer.cli:main",
+            "nobrainer_bwn=nobrainer.cli_click:predict"
         ]
     },
 )

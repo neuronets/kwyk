@@ -100,13 +100,13 @@ def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, sav
 
     print("++ Saving results.")
     nib.save(means, outfile_means)
-    _reslice(outfile_means, outfile_means_orig, infile)
+    _reslice(outfile_means, outfile_means_orig, _orig_infile, True)
     if save_variance and variance is not None:
         nib.save(variance, outfile_variance)
-        _reslice(outfile_variance, outfile_variance_orig, infile)
+        _reslice(outfile_variance, outfile_variance_orig, _orig_infile)
     if save_entropy:
         nib.save(entropy, outfile_entropy)
-        _reslice(outfile_entropy, outfile_entropy_orig, infile)
+        _reslice(outfile_entropy, outfile_entropy_orig, _orig_infile)
 
 
 def _conform(input, output):
@@ -114,7 +114,11 @@ def _conform(input, output):
     subprocess.run(['mri_convert', '--conform', input, output], check=True)
     return output
 
-def _reslice(input, output, reference):
+def _reslice(input, output, reference, labels=False):
     """Conform volume using FreeSurfer."""
-    subprocess.run(['mri_convert', '-rl', reference, input, output], check=True)
+    if labels:
+        subprocess.run(['mri_convert', '-rl', reference, '-rt', 'nearest',  input, output], 
+                       check=True)
+    else:
+        subprocess.run(['mri_convert', '-rl', reference, input, output], check=True)
     return output

@@ -11,6 +11,7 @@ scratch.ipynb
 __pycache__
 *.pyc
 
+*~
 *.gz
 *.h5
 *.json

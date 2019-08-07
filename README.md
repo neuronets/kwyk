@@ -1,42 +1,37 @@
+# kwyk
+Knowing what you know - Bayesian Neural Network for brain parcellation and uncertainty estimation
+
+Paper, code, and model corresponding to [preprint](https://arxiv.org/abs/1812.01719)
+
+To run using singularity, first pull the image:
+
+```
+singularity pull --docker-login docker://neuronets/kwyk:latest-gpu
+```
+
+You have a few options when running the image. To see them call help.
+```
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif --help
+```
+
+The models correspond to:
+1. Spike-and-slab dropout (bvwn_multi_prior)
+2. MC Bernoulli dropout (bwn_multi)
+3. MAP (bwn)
+
+Here is an example with the spike and slab dropout.
+```
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 --save-variance --save-entropy T1_001.nii.gz output.nii.gz
+```
+
+This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
+
+1. `output_means`: This file contains the labels
+2. `output_variance`: This file contains the variance in labeling over multiple samplings.
+3. `output_entropy`: This file contains the estimated entropy at each voxel.
+
+For now, if output files exist, the program will not override them.
+
 # nobrainer
 
-Neural networks for brain extraction and labelling from structural magnetic resonance images.
-
-
-## Examples
-
-Please see the [examples](examples) directory.
-
-
-## Getting started
-
-### Get the container
-
-```shell
-$ docker pull kaczmarj/nobrainer
-# or
-$ singularity build nobrainer.sqsh docker://kaczmarj/nobrainer
-```
-
-### Train your own models
-
-Models can be trained on neuroimaging volumes on the command line or with a Python script. All of the examples can be run within the _Nobrainer_ container. Please see the [examples](examples) for more information.
-
-Training data pre-requisites:
-  1. Volumes must be in a format supported by [nibabel](http://nipy.org/nibabel/).
-  2. Feature and label data must be available (e.g., T1 and aparc+aseg).
-
-Training progress can be visualized with [TensorBoard](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard):
-
-```
-$ singularity exec --clean-env --bind /path/to/models:/models nobrainer.sqsh \
-    tensorboard --logdir /models
-```
-
-### Predict using trained models
-
-We are in the process of training robust models for brain extraction and brain labelling. Stay tuned for information on how to use these models.
-
-### Funding
-
-The nobrainer project is supported by NIH R01 EB020470.
+This model is based on an earlier version of the nobrainer framework. This repository will be updated when the code is transitioned to the new model.

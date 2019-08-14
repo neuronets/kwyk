@@ -1,20 +1,27 @@
-# Nobrainer container specification.
+FROM debian:stretch-slim
+ARG DEBIAN_FRONTEND="noninteractive"
+ENV LANG="C.UTF-8"
+ENV LC_ALL="C.UTF-8"
 
-ARG TF_VERSION="1.12.0"
-# Use "gpu-py3" to build GPU-enabled container and "py3" for non-GPU container.
-ARG TF_ENV="gpu-py3"
-FROM tensorflow/tensorflow:${TF_VERSION}-${TF_ENV}
+RUN apt-get update \
+    && apt-get install --yes --quiet --no-install-recommends \
+        libgomp1 \
+        python3 \
+        # python3-h5py \
+        # python3-numpy \
+        python3-pip \
+        # python3-scipy \
+        python3-setuptools \
+        python3-wheel \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s $(which python3) /usr/local/bin/python
 
-COPY . /opt/nobrainer
-RUN \
-    # Extras do not have to be installed because the only extra is tensorflow,
-    # which is installed in the base image.
-    pip install --no-cache-dir -e /opt/nobrainer \
-    && rm -rf ~/.cache/pip/* \
-    && useradd --no-user-group --create-home --shell /bin/bash neuro
+COPY [".", "/opt/nobrainer"]
+RUN pip3 install --no-cache-dir --editable /opt/nobrainer[cpu]
 
-USER neuro
-WORKDIR /home/neuro
-ENTRYPOINT ["/usr/bin/python"]
+ENV FREESURFER_HOME="/opt/nobrainer/third_party/freesurfer"
+ENV PATH="$FREESURFER_HOME/bin:$PATH"
 
-LABEL maintainer="Jakub Kaczmarzyk <jakubk@mit.edu>"
+WORKDIR /data
+ENTRYPOINT ["nobrainer_bwn"]
+LABEL maintainer="Jakub Kaczmarzyk <jakub.kaczmarzyk@gmail.com>"

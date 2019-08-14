@@ -32,6 +32,16 @@ This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz
 
 For now, if output files exist, the program will not override them.
 
+### Docker usage example
+
+Instead of singularity with GPU, once can also use docker directly. This is an example with a CPU. Note that the CPU-based run is significantly slower.
+
+```
+docker run -it --rm -v $(pwd):/data neuronets/kwyk:latest-cpu -m bvwn_multi_prior --save-entropy T1_001.nii.gz output.nii.gz
+```
+
+The above examples assume there is a file named `T1_001.nii.gz` in `$(pwd)`.
+
 # nobrainer
 
 This model is based on an earlier version of the nobrainer framework. This repository will be updated when the code is transitioned to the new model.

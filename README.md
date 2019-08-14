@@ -21,7 +21,8 @@ The models correspond to:
 
 Here is an example with the spike and slab dropout.
 ```
-singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 --save-variance --save-entropy T1_001.nii.gz output.nii.gz
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
+  --save-variance --save-entropy T1_001.nii.gz output.nii.gz
 ```
 
 This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
@@ -37,7 +38,8 @@ For now, if output files exist, the program will not override them.
 Instead of singularity with GPU, once can also use docker directly. This is an example with a CPU. Note that the CPU-based run is significantly slower.
 
 ```
-docker run -it --rm -v $(pwd):/data neuronets/kwyk:latest-cpu -m bvwn_multi_prior --save-entropy T1_001.nii.gz output.nii.gz
+docker run -it --rm -v $(pwd):/data neuronets/kwyk:latest-cpu -m bvwn_multi_prior \
+  --save-entropy T1_001.nii.gz output.nii.gz
 ```
 
 The above examples assume there is a file named `T1_001.nii.gz` in `$(pwd)`.

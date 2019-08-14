@@ -99,6 +99,9 @@ def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, sav
     outfile_entropy_orig = "{}_entropy_orig{}".format(outfile_stem, outfile_ext)
 
     print("++ Saving results.")
+    data = np.round(means.get_fdata()).astype(np.uint8)
+    means = nib.Nifti1Image(data, header=means.header, affine=means.affine)
+    means.header.set_data_dtype(np.uint8)
     nib.save(means, outfile_means)
     _reslice(outfile_means, outfile_means_orig, _orig_infile, True)
     if save_variance and variance is not None:
@@ -117,7 +120,8 @@ def _conform(input, output):
 def _reslice(input, output, reference, labels=False):
     """Conform volume using FreeSurfer."""
     if labels:
-        subprocess.run(['mri_convert', '-rl', reference, '-rt', 'nearest',  input, output], 
+        subprocess.run(['mri_convert', '-rl', reference, '-rt', 'nearest', '-ns', '1', 
+                        input, output], 
                        check=True)
     else:
         subprocess.run(['mri_convert', '-rl', reference, input, output], check=True)

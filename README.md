@@ -8,7 +8,7 @@ Paper, code, and model corresponding to [preprint](https://arxiv.org/abs/1812.01
 To run using singularity, first pull the image:
 
 ```
-singularity pull --docker-login docker://neuronets/kwyk:latest-gpu
+singularity pull docker://neuronets/kwyk:latest-gpu
 ```
 
 You have a few options when running the image. To see them call help.

@@ -3,10 +3,12 @@ Knowing what you know - Bayesian Neural Network for brain parcellation and uncer
 
 Paper, code, and model corresponding to [preprint](https://arxiv.org/abs/1812.01719)
 
+![In-site segmentation results](figure4.png) <sub>__Figure__: In-site segmentation results for the spike-and-slab dropout (SSD) network for a test subject with average Dice performance. The columns show, respectively, the structural image used as input, the FreeSurfer segmentation used as a prediction target, the prediction made by our network, the voxels where there was a mismatch between prediction and target, and the prediction uncertainty at each voxel.</sub>
+
 To run using singularity, first pull the image:
 
 ```
-singularity pull --docker-login docker://neuronets/kwyk:latest-gpu
+singularity pull docker://neuronets/kwyk:latest-gpu
 ```
 
 You have a few options when running the image. To see them call help.

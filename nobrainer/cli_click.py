@@ -23,7 +23,7 @@ _models = {
 
 @click.command()
 @click.argument('infile')
-@click.argument('outfile')
+@click.argument('outprefix')
 @click.option('-m', '--model', type=click.Choice(_models.keys()), default="bwn_multi", required=True, help='Model to use for prediction.')
 @click.option('-n', '--n-samples', type=int, default=1, help='Number of samples to predict.')
 @click.option('-b', '--batch-size', type=int, default=8, help='Batch size during prediction.')
@@ -32,7 +32,7 @@ _models = {
 def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, save_entropy):
     """Predict labels from features using a trained model.
 
-    The predictions are saved to OUTFILE.
+    The predictions are saved to OUTPREFIX_* with the same extension as the input file.
 
     If you encounter out-of-memory issues, use a lower batch size value.
     """
@@ -40,12 +40,11 @@ def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, sav
     _orig_outfile = outfile
 
     # Are there other neuroimaging file extensions with multiple periods?
-    if outfile.lower().endswith('.nii.gz'):
+    if infile.lower().endswith('.nii.gz'):
         outfile_ext = '.nii.gz'
-        outfile_stem = outfile[:-7]
     else:
-        outfile_ext = Path(outfile).suffix
-        outfile_stem = Path(outfile).stem
+        outfile_ext = Path(infile).suffix
+    outfile_stem = outfile
 
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)

@@ -29,7 +29,7 @@ _models = {
 @click.option('-b', '--batch-size', type=int, default=8, help='Batch size during prediction.')
 @click.option('--save-variance', is_flag=True, help='Save volume with variance across `n-samples` predictions.')
 @click.option('--save-entropy', is_flag=True, help='Save volume of entropy values.')
-def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, save_entropy):
+def predict(*, infile, outprefix, model, n_samples, batch_size, save_variance, save_entropy):
     """Predict labels from features using a trained model.
 
     The predictions are saved to OUTPREFIX_* with the same extension as the input file.
@@ -37,14 +37,13 @@ def predict(*, infile, outfile, model, n_samples, batch_size, save_variance, sav
     If you encounter out-of-memory issues, use a lower batch size value.
     """
     _orig_infile = infile
-    _orig_outfile = outfile
 
     # Are there other neuroimaging file extensions with multiple periods?
     if infile.lower().endswith('.nii.gz'):
         outfile_ext = '.nii.gz'
     else:
         outfile_ext = Path(infile).suffix
-    outfile_stem = outfile
+    outfile_stem = outprefix
 
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)

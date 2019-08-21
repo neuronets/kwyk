@@ -24,7 +24,7 @@ The models correspond to:
 Here is an example with the spike and slab dropout.
 ```
 singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
-  --save-variance --save-entropy T1_001.nii.gz output.nii.gz
+  --save-variance --save-entropy T1_001.nii.gz output
 ```
 
 This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
@@ -41,7 +41,7 @@ Instead of singularity with GPU, once can also use docker directly. This is an e
 
 ```
 docker run -it --rm -v $(pwd):/data neuronets/kwyk:latest-cpu -m bvwn_multi_prior \
-  --save-entropy T1_001.nii.gz output.nii.gz
+  --save-entropy T1_001.nii.gz output
 ```
 
 The above examples assume there is a file named `T1_001.nii.gz` in `$(pwd)`.

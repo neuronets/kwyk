@@ -129,7 +129,9 @@ def create_parser():
     # Prediction subparser
     pp = subparsers.add_parser('predict', help="Predict using SavedModel")
     pp.add_argument('input', help="Filepath to volume on which to predict.")
-    pp.add_argument('output', help="Name out output file.")
+    pp.add_argument('output', help="Output files prefix. Files with _means, "
+                                   "_variance, and _entropy with .nii.gz "
+                                   "extension will be produced")
     ppp = pp.add_argument_group('prediction arguments')
     ppp.add_argument(
         '-b', '--block-shape', nargs=3, required=True, type=int,

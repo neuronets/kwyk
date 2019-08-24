@@ -1,6 +1,7 @@
 FROM nvidia/cuda:9.0-base-ubuntu16.04
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV LANG="C.UTF-8"
+ENV LANG="C.UTF-8" \
+    LC_ALL="C.UTF-8"
 
 # Install GPU dependencies for TensorFlow.
 RUN apt-get update \
@@ -38,7 +39,11 @@ RUN apt-get update \
 
 WORKDIR /opt/kwyk
 COPY [".", "."]
-RUN pip install --no-cache-dir --editable .[gpu]
+RUN pip install --no-cache-dir --editable .[gpu] \
+    # Install the saved models.
+    && curl -fsSL https://github.com/patrick-mcclure/nobrainer/tarball/master \
+    | tar xz --strip=1 --wildcards '*/saved_models'
+
 
 ENV FREESURFER_HOME="/opt/kwyk/freesurfer"
 ENV PATH="$FREESURFER_HOME/bin:$PATH"

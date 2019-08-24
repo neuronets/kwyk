@@ -1,7 +1,7 @@
 FROM debian:stretch-slim
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV LANG="C.UTF-8"
-ENV LC_ALL="C.UTF-8"
+ENV LANG="C.UTF-8" \
+    LC_ALL="C.UTF-8"
 
 RUN apt-get update \
     && apt-get install --yes --quiet --no-install-recommends \
@@ -16,7 +16,10 @@ RUN apt-get update \
 
 WORKDIR /opt/kwyk
 COPY [".", "."]
-RUN pip install --no-cache-dir --editable .[cpu]
+RUN pip install --no-cache-dir --editable .[cpu] \
+    # Install the saved models.
+    && curl -fsSL https://github.com/patrick-mcclure/nobrainer/tarball/master \
+    | tar xz --strip=1 --wildcards '*/saved_models'
 
 ENV FREESURFER_HOME="/opt/kwyk/freesurfer"
 ENV PATH="$FREESURFER_HOME/bin:$PATH"

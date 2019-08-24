@@ -1,16 +1,22 @@
 FROM nvidia/cuda:9.0-base-ubuntu16.04
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV LANG="C.UTF-8"
+ENV LANG="C.UTF-8" \
+    LC_ALL="C.UTF-8"
 
 # Install GPU dependencies for TensorFlow.
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends \
-       	cuda9.0 cuda-cublas-9-0 cuda-cufft-9-0 cuda-curand-9-0 \
-	cuda-cusolver-9-0 cuda-cusparse-9-0 libcudnn7=7.2.1.38-1+cuda9.0 \
-        libnccl2=2.2.13-1+cuda9.0 cuda-command-line-tools-9-0 \
+    && apt-get install -y --no-install-recommends \
+        nvinfer-runtime-trt-repo-ubuntu1604-4.0.1-ga-cuda9.0 \
     && apt-get update \
-    && apt-get install --yes --no-install-recommends \
-       libnvinfer4=4.1.2-1+cuda9.0 \
+    && apt-get install -y --no-install-recommends \
+        libnvinfer4=4.1.2-1+cuda9.0 \
+        cuda-cublas-9-0 \
+        cuda-cufft-9-0 \
+        cuda-curand-9-0 \
+        cuda-cusolver-9-0 \
+        cuda-cusparse-9-0 \
+        libcudnn7=7.2.1.38-1+cuda9.0 \
+        libnccl2=2.2.13-1+cuda9.0 \
         libfreetype6-dev \
         libhdf5-serial-dev \
         libpng12-dev \
@@ -22,23 +28,26 @@ RUN apt-get update \
 
 RUN apt-get update \
     && apt-get install --yes --quiet --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        libgomp1 \
         python3 \
-        python3-h5py \
-        python3-numpy \
-        python3-pip \
-        python3-scipy \
-        python3-setuptools \
-        python3-wheel \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY [".", "/opt/nobrainer"]
-RUN  pip3 install --no-cache-dir --editable /opt/nobrainer[gpu] \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3 - \
     && ln -s $(which python3) /usr/local/bin/python
 
-ENV FREESURFER_HOME="/opt/nobrainer/third_party/freesurfer"
+WORKDIR /opt/kwyk
+COPY [".", "."]
+RUN pip install --no-cache-dir --editable .[gpu] \
+    # Install the saved models.
+    && curl -fsSL https://github.com/patrick-mcclure/nobrainer/tarball/master \
+    | tar xz --strip=1 --wildcards '*/saved_models'
+
+
+ENV FREESURFER_HOME="/opt/kwyk/freesurfer"
 ENV PATH="$FREESURFER_HOME/bin:$PATH"
-ENV LC_ALL="C.UTF-8"
 
 WORKDIR /data
-ENTRYPOINT ["nobrainer_bwn"]
+ENTRYPOINT ["kwyk"]
 LABEL maintainer="Jakub Kaczmarzyk <jakub.kaczmarzyk@gmail.com>"

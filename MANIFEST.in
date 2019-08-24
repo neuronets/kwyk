@@ -1,0 +1,2 @@
+include versioneer.py
+include kwyk/_version.py

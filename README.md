@@ -46,6 +46,16 @@ docker run -it --rm -v $(pwd):/data neuronets/kwyk:latest-cpu -m bvwn_multi_prio
 
 The above examples assume there is a file named `T1_001.nii.gz` in `$(pwd)`.
 
+### Docker hub tags
+
+The docker hub tags follow the following naming scheme:
+
+- `master-gpu`: gpu version of current github master
+- `latest-gpu`: gpu version of latest release
+- `SEMVER-gpu`: gpu version of semantically versioned release
+
+for `cpu` versions replace `gpu` with `cpu`
+
 # nobrainer
 
 This model is based on an earlier version of the nobrainer framework. This repository will be updated when the code is transitioned to the new model.

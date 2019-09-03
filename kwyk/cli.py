@@ -4,13 +4,11 @@ import tempfile
 
 import click
 import nibabel as nib
-from nobrainer.io import read_volume
 from nobrainer.predict import _get_predictor
 from nobrainer.predict import predict_from_filepath
-from nobrainer.volume import from_blocks
-from nobrainer.volume import to_blocks
 from nobrainer.volume import zscore
 import numpy as np
+import etelemetry
 
 from kwyk import __version__
 
@@ -38,6 +36,9 @@ def predict(*, infile, outprefix, model, n_samples, batch_size, save_variance, s
 
     If you encounter out-of-memory issues, use a lower batch size value.
     """
+    latest = etelemetry.get_project("neuronets/kwyk")["version"]
+    print(f"Your version: {__version__} Latest version: {latest}")
+
     _orig_infile = infile
 
     # Are there other neuroimaging file extensions with multiple periods?

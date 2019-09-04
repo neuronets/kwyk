@@ -36,8 +36,14 @@ def predict(*, infile, outprefix, model, n_samples, batch_size, save_variance, s
 
     If you encounter out-of-memory issues, use a lower batch size value.
     """
-    latest = etelemetry.get_project("neuronets/kwyk")["version"]
-    print(f"Your version: {__version__} Latest version: {latest}")
+    try:
+        latest = etelemetry.get_project("neuronets/kwyk")
+    except RuntimeError as e:
+        print("Could not check for version updates: ", e)
+    else:
+        if latest and 'version' in latest:
+            print("Your version: {0} Latest version: {1}".format(__version__,
+                                                                 latest["version"]))
 
     _orig_infile = infile
 

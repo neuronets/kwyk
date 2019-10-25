@@ -27,6 +27,8 @@ singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_
   --save-variance --save-entropy T1_001.nii.gz output
 ```
 
+Note: If you already have `FREESURFER` environment variables in your shell, these may interfere with the ones inside the container. To isolate the container further please add the `-e` flag at the beginning (`singularity run -e ...`) to suppress any environment variables from being pulled into the container.
+
 This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
 
 1. `output_means`: This file contains the labels

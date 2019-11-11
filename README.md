@@ -1,7 +1,9 @@
 # kwyk
 Knowing what you know - Bayesian Neural Network for brain parcellation and uncertainty estimation
 
-Paper, code, and model corresponding to [preprint](https://arxiv.org/abs/1812.01719)
+Paper, code, and model corresponding to [preprint](https://arxiv.org/abs/1812.01719), which is now published.
+
+Cite: [McClure P, Rho N, Lee JA, Kaczmarzyk JR, Zheng CY, Ghosh SS, Nielson DM, Thomas AG, Bandettini P and Pereira F (2019) Knowing What You Know in Brain Segmentation Using Bayesian Deep Neural Networks. Front. Neuroinform. 13:67. doi:10.3389/fninf.2019.00067](https://www.frontiersin.org/articles/10.3389/fninf.2019.00067/full)
 
 ![In-site segmentation results](figure4.png) <sub>__Figure__: In-site segmentation results for the spike-and-slab dropout (SSD) network for a test subject with average Dice performance. The columns show, respectively, the structural image used as input, the FreeSurfer segmentation used as a prediction target, the prediction made by our network, the voxels where there was a mismatch between prediction and target, and the prediction uncertainty at each voxel.</sub>
 

@@ -34,7 +34,7 @@ RUN apt-get update \
         libgomp1 \
         python3 \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3 - \
+    && curl -fsSL https://bootstrap.pypa.io/3.5/get-pip.py | python3 - \
     && ln -s $(which python3) /usr/local/bin/python
 
 WORKDIR /opt/kwyk

@@ -36,6 +36,7 @@ This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz
 1. `output_means`: This file contains the labels
 2. `output_variance`: This file contains the variance in labeling over multiple samplings.
 3. `output_entropy`: This file contains the estimated entropy at each voxel.
+4. `output_uncertainty`: A json file that contains the average uncertainty of the inpuy.
 
 For now, if output files exist, the program will not override them.
 

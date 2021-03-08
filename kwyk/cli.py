@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import tempfile
+import json
 
 import click
 import nibabel as nib
@@ -57,8 +58,9 @@ def predict(*, infile, outprefix, model, n_samples, batch_size, save_variance, s
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)
     outfile_entropy = "{}_entropy{}".format(outfile_stem, outfile_ext)
+    outfile_uncertainty = "{}_uncertainty{}".format(outfile_stem, '.json')
 
-    for ff in [outfile_means, outfile_variance, outfile_entropy]:
+    for ff in [outfile_means, outfile_variance, outfile_entropy, outfile_uncertainty]:
         if Path(ff).exists():
             raise FileExistsError("file exists: {}".format(ff))
 
@@ -117,6 +119,11 @@ def predict(*, infile, outprefix, model, n_samples, batch_size, save_variance, s
     if save_entropy:
         nib.save(entropy, outfile_entropy)
         _reslice(outfile_entropy, outfile_entropy_orig, _orig_infile)
+        uncertainty = np.mean(np.ma.masked_where(data==0, entropy.get_fdata()))
+        average_uncertainty = {"uncertainty":uncertainty}
+        with open(outfile_uncertainty, "w") as fp:
+            json.dump(average_uncertainty, fp, indent=4)
+
 
 
 def _conform(input, output):

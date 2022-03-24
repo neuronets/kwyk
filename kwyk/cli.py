@@ -3,7 +3,6 @@ from pathlib import Path
 import subprocess
 import tempfile
 import json
-import os
 
 import click
 import nibabel as nib
@@ -38,7 +37,7 @@ _models = {
 def predict(*, infiles, outprefix, model, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation):
     """Predict labels from features using a trained model.
 
-    The predictions are saved to OUTPREFIX_* with the same extension as the input file.
+    The predictions are saved to INFILE_OUTPREFIX_* with the same extension as the input file.
 
     If you encounter out-of-memory issues, use a lower batch size value.
     """
@@ -63,9 +62,12 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
     # Are there other neuroimaging file extensions with multiple periods?
     if infile.lower().endswith('.nii.gz'):
         outfile_ext = '.nii.gz'
+        infile_stem = infile.rsplit('.', 2)[0].rsplit("/",1)[-1]
     else:
         outfile_ext = Path(infile).suffix
-    outfile_stem = outprefix
+        infile_stem = infile.rsplit('.', 1)[0].rsplit("/",1)[-1]
+        
+    outfile_stem = "{}_{}".format(infile_stem, outprefix)
 
     if atlocation:
         outfile_stem = Path(infile).parent / outfile_stem

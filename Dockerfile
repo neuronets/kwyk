@@ -21,8 +21,6 @@ RUN pip install --no-cache-dir --editable .[cpu] \
     && curl -fsSL https://github.com/patrick-mcclure/nobrainer/tarball/master \
     | tar xz --strip=1 --wildcards '*/saved_models'
 
-ENV FREESURFER_HOME="/opt/kwyk/freesurfer"
-ENV PATH="$FREESURFER_HOME/bin:$PATH"
 
 WORKDIR /data
 ENTRYPOINT ["kwyk"]

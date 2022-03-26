@@ -1,11 +1,9 @@
 #! /usr/bin/env python
 from pathlib import Path
-import subprocess
-import tempfile
 import json
-
 import click
 import nibabel as nib
+from nibabel.processing import conform, resample_from_to
 from nobrainer.predict import _get_predictor
 from nobrainer.predict import predict_from_filepath
 from nobrainer.volume import zscore
@@ -94,12 +92,15 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
     if ndim != 3:
         raise ValueError("Input volume must have three dimensions but got {}.".format(ndim))
     if img.shape != required_shape:
-        tmp = tempfile.NamedTemporaryFile(suffix='.nii.gz')
+        #tmp = tempfile.NamedTemporaryFile(suffix='.nii.gz')
+        tmp = Path("./tmp.nii.gz")
         print("++ Conforming volume to 1mm^3 voxels and size 256x256x256.")
-        _conform(infile, tmp.name)
-        infile = tmp.name
+        _conform(infile, tmp)
+        infile = tmp
+        need_reslice = True
     else:
         tmp = None
+        need_reslice = False
 
     print("++ Running forward pass of model.")
     outputs = predict_from_filepath(
@@ -131,34 +132,40 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
     means = nib.Nifti1Image(data, header=means.header, affine=means.affine)
     means.header.set_data_dtype(np.uint8)
     nib.save(means, outfile_means)
-    _reslice(outfile_means, outfile_means_orig, _orig_infile, True)
+    if need_reslice:    
+        rs_means = _reslice(means, _orig_infile)
+        nib.save(rs_means, outfile_means_orig)
+        
     if save_variance and variance is not None:
         nib.save(variance, outfile_variance)
-        _reslice(outfile_variance, outfile_variance_orig, _orig_infile)
+        if need_reslice:
+            rs_variance = _reslice(variance, _orig_infile)
+            nib.save(rs_variance, outfile_variance_orig)
     if save_entropy:
         nib.save(entropy, outfile_entropy)
-        _reslice(outfile_entropy, outfile_entropy_orig, _orig_infile)
+        if need_reslice:
+            rs_entropy = _reslice(entropy, _orig_infile)
+            nib.save(rs_entropy, outfile_entropy_orig)
         uncertainty = np.mean(np.ma.masked_where(data==0, entropy.get_fdata()))
-        average_uncertainty = {"uncertainty":uncertainty}
+        average_uncertainty = {"uncertainty": uncertainty}
         with open(outfile_uncertainty, "w") as fp:
             json.dump(average_uncertainty, fp, indent=4)
 
 
-def _conform(input, output):
-    """Conform volume using FreeSurfer."""
-    subprocess.run(['mri_convert', '--conform', input, output], check=True)
-    return output
+def _conform(input_path,output_path):
+    """
+    Conform volume using nibabel to the shape of (256,256,256).
+    
+    """
+    input_volume = nib.load(input_path)
+    output = conform(input_volume)
+    nib.save(output,output_path)
 
 
-def _reslice(input, output, reference, labels=False):
-    """Conform volume using FreeSurfer."""
-    if labels:
-        subprocess.run(['mri_convert', '-rl', reference, '-rt', 'nearest', '-ns', '1',
-                        input, output],
-                       check=True)
-    else:
-        subprocess.run(['mri_convert', '-rl', reference, input, output], check=True)
-    return output
+def _reslice(conformed_volume, orig_path):
+    reference = nib.load(orig_path)
+    """reslice the output to the original volume shape and returns a resampled image object."""
+    return resample_from_to(conformed_volume, reference, mode = 'nearest')
 
 
 if __name__ == '__main__':

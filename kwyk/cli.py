@@ -66,15 +66,15 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
         outfile_ext = '.nii.gz'
     else:
         outfile_ext = Path(infile).suffix
-    outfile_stem = outprefix
+    outfile_stem = outprefix + Path(infile).name.replace(outfile_ext, "")
 
     if atlocation:
         outfile_stem = Path(infile).parent / outfile_stem
     else:
         if base:
-            base_loc = str(Path(infile).parent).replace(base)
+            base_loc = str(Path(infile).parent).replace(base, "")
             outfile_stem = Path(base_loc) / outfile_stem
-            os.makedirs(base_loc, exist_ok=True)
+    os.makedirs(Path(outfile_stem).parent, exist_ok=True)
 
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)

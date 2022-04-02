@@ -31,14 +31,27 @@ singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_
 
 Note: If you already have `FREESURFER` environment variables in your shell, these may interfere with the ones inside the container. To isolate the container further please add the `-e` flag at the beginning (`singularity run -e ...`) to suppress any environment variables from being pulled into the container.
 
-This will generate two sets of files `output_*.nii.gz` and `output_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
+This will generate two sets of files `outputT1_001_*.nii.gz` and `outputT1_001_*_orig.nii.gz`. The first set consists of results in conformed FreeSurfer space. The second set will correspond to the original input space.
 
 1. `output_means`: This file contains the labels
 2. `output_variance`: This file contains the variance in labeling over multiple samplings.
 3. `output_entropy`: This file contains the estimated entropy at each voxel.
 4. `output_uncertainty`: A json file that contains the average uncertainty of the input.
 
-For now, if output files exist, the program will not override them.
+If output files exist, the program will overwrite them if the option `--overwrite yes` is given. You can pass more than one input file to the container. the output will be saved with `prefix` added to input filename.
+
+```
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
+  --save-variance --save-entropy path/to/T1_001.nii.gz path/to/T2_001.nii.gz output
+```
+
+If the input files share the same file path pattern such as bids format, the `--base` option removes parts of infile path and creates a new folder to save all outputs there.
+
+```
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
+  --save-variance --save-entropy --base /path/to/location/bidsdataset/ /path/to/location/bidsdataset/sub-1/anat/T1.nii.gz output
+```
+
 
 ### Docker usage example
 

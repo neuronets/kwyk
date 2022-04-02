@@ -74,7 +74,7 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
         if base:
             base_loc = str(Path(infile).parent).replace(base, "")
             outfile_stem = Path(base_loc) / outfile_stem
-    os.makedirs(Path(outfile_stem).parent, exist_ok=True)
+    os.makedirs(str(Path(outfile_stem).parent), exist_ok=True)
 
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)

@@ -58,7 +58,7 @@ In case of multiple input files
 
 ```
 singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
-  --save-variance --save-entropy --base /path/to/location/bidsdataset/ /path/to/location/bidsdataset/sub-1/anat/T1.nii.gz /path/to/location/bidsdataset/sub-2/anat/T1.nii.g output
+  --save-variance --save-entropy --base /path/to/location/bidsdataset/ /path/to/location/bidsdataset/sub-1/anat/T1.nii.gz /path/to/location/bidsdataset/sub-2/anat/T1.nii.gz output
 ```
 
 

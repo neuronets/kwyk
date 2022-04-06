@@ -34,8 +34,9 @@ _models = {
 @click.option('--save-entropy', is_flag=True, help='Save volume of entropy values.')
 @click.option('--overwrite', type=click.Choice(['yes', 'skip'], case_sensitive=False), help='Overwrite existing output or skip')
 @click.option('--atlocation', is_flag=True, help='Save output in the same location as input')
+@click.option('--base', help='Remove base when computing output location. Does not apply when --atlocation is used.')
 @click.version_option(version=__version__)
-def predict(*, infiles, outprefix, model, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation):
+def predict(*, infiles, outprefix, model, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation, base):
     """Predict labels from features using a trained model.
 
     The predictions are saved to OUTPREFIX_* with the same extension as the input file.
@@ -54,10 +55,10 @@ def predict(*, infiles, outprefix, model, n_samples, batch_size, save_variance, 
     savedmodel_path = _models[model]
     predictor = _get_predictor(savedmodel_path)
     for infile in infiles:
-        _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation)
+        _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation, base)
 
 
-def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation):
+def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance, save_entropy, overwrite, atlocation, base):
     _orig_infile = infile
 
     # Are there other neuroimaging file extensions with multiple periods?
@@ -65,10 +66,15 @@ def _predict(infile, outprefix, predictor, n_samples, batch_size, save_variance,
         outfile_ext = '.nii.gz'
     else:
         outfile_ext = Path(infile).suffix
-    outfile_stem = outprefix
+    outfile_stem = outprefix + Path(infile).name.replace(outfile_ext, "")
 
     if atlocation:
         outfile_stem = Path(infile).parent / outfile_stem
+    else:
+        if base:
+            base_loc = str(Path(infile).parent).replace(base, "")
+            outfile_stem = Path(base_loc) / outfile_stem
+    os.makedirs(str(Path(outfile_stem).parent), exist_ok=True)
 
     outfile_means = "{}_means{}".format(outfile_stem, outfile_ext)
     outfile_variance = "{}_variance{}".format(outfile_stem, outfile_ext)

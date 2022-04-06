@@ -38,7 +38,9 @@ This will generate two sets of files `outputT1_001_*.nii.gz` and `outputT1_001_*
 3. `output_entropy`: This file contains the estimated entropy at each voxel.
 4. `output_uncertainty`: A json file that contains the average uncertainty of the input.
 
-If output files exist, the program will overwrite them if the option `--overwrite yes` is given. You can pass more than one input file to the container. the output will be saved with `prefix` added to input filename.
+If output files exist, the program will overwrite them only if the option `--overwrite yes` is given. 
+
+You can pass more than one input file to the container. the output will be saved with `prefix` added to input filename.
 
 ```
 singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
@@ -50,6 +52,13 @@ If the input files share the same file path pattern such as bids format, the `--
 ```
 singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
   --save-variance --save-entropy --base /path/to/location/bidsdataset/ /path/to/location/bidsdataset/sub-1/anat/T1.nii.gz output
+```
+
+In case of multiple input files
+
+```
+singularity run -B $(pwd):/data -W /data --nv kwyk_latest-gpu.sif -m bvwn_multi_prior -n 2 \
+  --save-variance --save-entropy --base /path/to/location/bidsdataset/ /path/to/location/bidsdataset/sub-1/anat/T1.nii.gz /path/to/location/bidsdataset/sub-2/anat/T1.nii.g output
 ```
 
 

@@ -20,3 +20,4 @@ __pycache__
 ._*
 
 slurm-*.out
+.idea/*
